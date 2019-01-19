@@ -1,26 +1,8 @@
 # chainlink-aws-setup
 Automated Chainlink node setup guide for Amazon Web Services.
 These instructions illustrate how to bootstrap a new EC2 instance and automatically provision a dockerized Chainlink node running on Ropsten testnet.
-This configuration is for demo purposes only and should not be considered as a suitable node configuration for mainnet.
+This configuration is for demo purposes only and should not be considered as suitable for mainnet.
 
-## Node Configuration
-
-Parameter | Value | Description
---------- | ----- | ------------
-EC2 Instance Type | t3.micro | 2x vCPUs + 1GB RAM
-EC2 Image Id | ami-09f0b8b3e41191524 | Ubuntu 16.04 LTS Xenial
-Image\OS Hardening | None | Ubuntu out of the box
-Chainlink Node Type | Docker | 
-Root Volume | EBS | 8 GB
-Root Volume Encryption | No | My linkies are gone
-Delete Instance on Termination | Disabled | Instance can only be deleted manually via the AWS console
-Incoming Open Ports | 22 (0.0.0.0/0) | SSH Access restricted to .pem key-file login
-Outgoing Open Ports | All (0.0.0.0/0) |
-Failover Support | None |  No Chainlink Container, VPS or Volume redundancy.
-Protocol/Port | HTTP:6688 | 
-TLS/SSL | No | I dont love you enough
-Web Access | http://localhost:6688 | Web login is configured via port forwarding from your local machine to the EC2 instance
-External Adapters | None | 
 
 ## Pre-requisites
 
@@ -54,29 +36,29 @@ wget https://github.com/stepsal/chainlink-aws-setup/archive/master.zip && unzip 
 Modify the node_setup.bsh script in a text editor.
 Replace the placeholders `ETHNODE_ADDRESS`, `WALLET_PASSWORD`, `API_USER` and `API_PASSWORD` with your [desired config](#configuration-variables).
 
-Create a default security group for the chainlink node.
+#### Create a new security-group.
 
 ```
 aws ec2 create-security-group --group-name chainlink-node --description "Chainlink Node Security Group"
 ```
 
-Allow SSH access to the node on port 22. (PasswordAuthentication is disabled by default,
- access can only be obtained using the key pair created in the following step)
+#### Open port 22 (SSH Access) on the security-group
+SSH PasswordAuthentication is disabled by default, access can only be obtained using a key-pair
 
 ```
 aws ec2 authorize-security-group-ingress --group-name chainlink-node --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
 
-Create a new key-pair in your local home directory for connecting to the node.
+#### Create a key-pair
+The key-pair is created in your local home directory and used to SSH to the node.
 
 ```
 aws ec2 create-key-pair --key-name chainlinknode-key --query "KeyMaterial" --output text > ~/chainlinknode-key.pem
 ```
-
-Update the key-pair permissions
+#### Update the key-pair permissions
+```
 chmod 400 ~/chainlinknode-key.pem
-
-
+```
 
 ### Provision the EC2 Instance 
 
@@ -93,45 +75,50 @@ aws ec2 run-instances \
     --query "Instances[0].InstanceId"
 ```
 
-Get the PublicDNSName of the node.
+#### Get the PublicDNSName
 Substitute <instance_id> with the value returned from the previous step.
 
 ```
 aws ec2 describe-instances --instance-id <instance_id> --query "Reservations[0].Instances[0].[PublicDnsName]"
 ```
 
-Monitor the installation.
+#### Connect and Monitor the installation.
 Substitute <PublicDNSName> with the value returned from the previous step.
+When prompted add the key to the known hosts file.
+Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit the SSH session.
 
 ```
 ssh -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName> "tail -f /var/log/cloud-init-output.log"
 ```
 
-Type Yes to add te key to the known hosts file and you will be viewing the (short) installation .
-Once you see "****Chainlink Node Installed Successfully******" in the output press ctrl+z to exit.
-
-
-Configure port forwarding from port 6688 on your local machine to port 6688 on the node.
-Substiture <PublicDNSName> in the command with your PublicDNSName.
+#### Configure port forwarding
+A link will be setup from localhost port 6688 to port 6688 of the node.
+Substitute <PublicDNSName> with your PublicDNSName.
 
 ```
 ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>
 ```
 
-You can now login to your (Ropsten) Chainlink node via thw url http://localhost:6688
+You can now login to your (Ropsten) Chainlink node via http://localhost:6688
 
-On reboot the SSH port forwarding will be disabled, so you will have to re-run the command.
-You can create an alias in your bash file to simplify things. Once again substitute your nodes <PublicDNSName>
-
+On shutdown SSH port forwarding will be lost and will have to be re-enabled
+You can create an alias in your bash file to simplify this step. 
+Once again substitute your nodes <PublicDNSName> in the command
+ 
+```
+ cp ~/.bashrc ~/.bashrc_backup
+```
 ```
 echo "alias link_port='ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>'" >> ~/.bashrc
 ```
 
-After a reboot you can just run ``link_port`` from the command line to setup port forwarding and connect to your node.
+On system start run ``link_port`` in the shell to re-setup port-forwarding
 
 
 ## Post-installation
-If you dont want your passwords in plain text on the node you can remove the passwords file after installation. Make sure you have them written down and stored safely somewhere
+
+If you dont want to leave your passwords in plain text on the node you can remove the passwords file with the below command. 
+Make sure to backup you API and Wallet passwords locally before excuting the step.
 
 ```
 ssh -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>  'rm -rf /var/chainlink-ropsten/.api /var/chainlink-ropsten/.password'
@@ -145,6 +132,26 @@ Variable | Description | Example
 `API_USER` | The email you want to use to sign in to your CL node. | `you@example.com`
 `API_PASSWORD` | The password you want to use to sign in to your CL node. | `yourpassword123`
 `WALLET_PASSWORD` | A (secure) password for your Ethereum wallet. | `U!^926*KmBqsj68RpcI$*!w9$YpSTJK!#T`
+
+
+## Chainlink Node Description
+
+Parameter | Value | Description
+--------- | ----- | ------------
+EC2 Instance Type | t3.micro | 2x vCPUs + 1GB RAM
+EC2 Image Id | ami-09f0b8b3e41191524 | Ubuntu 16.04 LTS Xenial
+Image\OS Hardening | None | Ubuntu out of the box
+Chainlink Node Type | Docker | 
+Root Volume | EBS | 8 GB
+Root Volume Encryption | No | My linkies are gone
+Delete Instance on Termination | Disabled | Instance can only be deleted manually via the AWS console
+Incoming Open Ports | 22 (0.0.0.0/0) | SSH Access restricted to .pem key-file login
+Outgoing Open Ports | All (0.0.0.0/0) |
+Failover Support | None |  No Chainlink Container, VPS or Volume redundancy.
+Protocol/Port | HTTP:6688 | 
+TLS/SSL | No | I dont love you enough
+Web Access | http://localhost:6688 | Web login is configured via port forwarding from your local machine to the EC2 instance
+External Adapters | None | 
 
 
 
