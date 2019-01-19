@@ -63,7 +63,7 @@ chmod 400 ~/chainlinknode-key.pem
 ### Provision the EC2 Instance 
 
 Provision the EC2 Instance and automatically install the Chainlink node.
-This command will return the <instance_id> of the newly created node.
+This command will return the INSTANCE_ID of the created node.
 
 ```
 aws ec2 run-instances \
@@ -76,44 +76,41 @@ aws ec2 run-instances \
 ```
 
 #### Get the PublicDNSName
-Substitute <instance_id> with the value returned from the previous step.
+Use your INSTANCE_ID to retrieve the PUBLIC_DNS_NAME
 
 ```
-aws ec2 describe-instances --instance-id <instance_id> --query "Reservations[0].Instances[0].[PublicDnsName]"
+aws ec2 describe-instances --instance-id INSTANCE_ID--query "Reservations[0].Instances[0].[PublicDnsName]"
 ```
 
 #### Connect and Monitor the installation.
-Substitute <PublicDNSName> with the value returned from the previous step.
+Substitute PUBLIC_DNS_NAME with the value returned from the previous step.
 When prompted add the key to the known hosts file.
 Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit the SSH session.
 
 ```
-ssh -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName> "tail -f /var/log/cloud-init-output.log"
+ssh -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME "tail -f /var/log/cloud-init-output.log"
 ```
 
 #### Configure port forwarding
-A link will be setup from localhost port 6688 to port 6688 of the node.
-Substitute <PublicDNSName> with your PublicDNSName.
+Setup port forwarding from localhost port 6688 to port 6688 of the AWS instance.
 
 ```
-ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>
+ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME
 ```
 
 You can now login to your (Ropsten) Chainlink node via http://localhost:6688
 
-On shutdown SSH port forwarding will be lost and will have to be re-enabled
-You can create an alias in your bash file to simplify this step. 
-Once again substitute your nodes <PublicDNSName> in the command
+On a shutdown SSH port forwarding will be lost and will have to re-enabled after you restart your machine
+You can create a shortcut alias to simplify this. You can run ``link_port`` in the shell anytime to re-enable port-forwarding. Make sure to substitute PUBLIC_DNS_NAME
  
+Backup your .bashrc file
 ```
  cp ~/.bashrc ~/.bashrc_backup
 ```
+Creat the link-port alias
 ```
-echo "alias link_port='ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>'" >> ~/.bashrc
+echo "alias link_port='ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME'" >> ~/.bashrc
 ```
-
-On system start run ``link_port`` in the shell to re-setup port-forwarding
-
 
 ## Post-installation
 
@@ -121,7 +118,7 @@ If you dont want to leave your passwords in plain text on the node you can remov
 Make sure to backup you API and Wallet passwords locally before excuting the step.
 
 ```
-ssh -i ~/chainlinknode-key.pem ubuntu@<PublicDNSName>  'rm -rf /var/chainlink-ropsten/.api /var/chainlink-ropsten/.password'
+ssh -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME 'rm -rf /var/chainlink-ropsten/.api /var/chainlink-ropsten/.password'
 ```
 
 ## Configuration variables
