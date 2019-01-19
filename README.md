@@ -107,7 +107,7 @@ Backup your .bashrc file
 ```
  cp ~/.bashrc ~/.bashrc_backup
 ```
-Creat the link-port alias
+Create the link-port alias
 ```
 echo "alias link_port='ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME'" >> ~/.bashrc
 ```
