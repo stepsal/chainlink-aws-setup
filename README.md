@@ -36,26 +36,27 @@ wget https://github.com/stepsal/chainlink-aws-setup/archive/master.zip && unzip 
 Modify the node_setup.bsh script in a text editor.
 Replace the placeholders `ETHNODE_ADDRESS`, `WALLET_PASSWORD`, `API_USER` and `API_PASSWORD` with your [desired config](#configuration-variables).
 
-#### Create a new security-group.
+Create a new security-group.
 
 ```
 aws ec2 create-security-group --group-name chainlink-node --description "Chainlink Node Security Group"
 ```
 
-#### Open port 22 (SSH Access) on the security-group
+Open port 22
 SSH PasswordAuthentication is disabled by default, access can only be obtained using a key-pair
 
 ```
 aws ec2 authorize-security-group-ingress --group-name chainlink-node --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
 
-#### Create a key-pair
+Create a new key-pair
 The key-pair is created in your local home directory and used to SSH to the node.
 
 ```
 aws ec2 create-key-pair --key-name chainlinknode-key --query "KeyMaterial" --output text > ~/chainlinknode-key.pem
 ```
-#### Update the key-pair permissions
+
+Update the key-pair permissions
 ```
 chmod 400 ~/chainlinknode-key.pem
 ```
@@ -75,14 +76,14 @@ aws ec2 run-instances \
     --query "Instances[0].InstanceId"
 ```
 
-#### Get the PublicDNSName
+Get the PublicDNSName
 Use your INSTANCE_ID to retrieve the PUBLIC_DNS_NAME
 
 ```
 aws ec2 describe-instances --instance-id INSTANCE_ID--query "Reservations[0].Instances[0].[PublicDnsName]"
 ```
 
-#### Connect and Monitor the installation.
+Connect to the node and Monitor the installation.
 Substitute PUBLIC_DNS_NAME with the value returned from the previous step.
 When prompted add the key to the known hosts file.
 Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit the SSH session.
@@ -91,13 +92,12 @@ Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit 
 ssh -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME "tail -f /var/log/cloud-init-output.log"
 ```
 
-#### Configure port forwarding
+Configure port forwarding
 Setup port forwarding from localhost port 6688 to port 6688 of the AWS instance.
 
 ```
 ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME
 ```
-
 You can now login to your (Ropsten) Chainlink node via http://localhost:6688
 
 On a shutdown SSH port forwarding will be lost and will have to re-enabled after you restart your machine
@@ -131,7 +131,7 @@ Variable | Description | Example
 `WALLET_PASSWORD` | A (secure) password for your Ethereum wallet. | `U!^926*KmBqsj68RpcI$*!w9$YpSTJK!#T`
 
 
-## Chainlink Node Description
+## Node Description
 
 Parameter | Value | Description
 --------- | ----- | ------------
