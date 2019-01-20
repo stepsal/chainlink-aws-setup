@@ -42,14 +42,16 @@ Create a new security-group.
 aws ec2 create-security-group --group-name chainlink-node --description "Chainlink Node Security Group"
 ```
 
-Open port 22
+Open port 22.
+
 SSH PasswordAuthentication is disabled by default, access can only be obtained using a key-pair
 
 ```
 aws ec2 authorize-security-group-ingress --group-name chainlink-node --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
 
-Create a new key-pair
+Create a new key-pair.
+
 The key-pair is created in your local home directory and used to SSH to the node.
 
 ```
@@ -76,7 +78,8 @@ aws ec2 run-instances \
     --query "Instances[0].InstanceId"
 ```
 
-Get the PublicDNSName
+Get the PublicDNSName.
+
 Use your INSTANCE_ID to retrieve the PUBLIC_DNS_NAME
 
 ```
@@ -84,6 +87,7 @@ aws ec2 describe-instances --instance-id INSTANCE_ID --query "Reservations[0].In
 ```
 
 Connect to the node and Monitor the installation.
+
 Substitute PUBLIC_DNS_NAME with the value returned from the previous step.
 When prompted add the key to the known hosts file.
 Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit the SSH session.
