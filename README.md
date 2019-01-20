@@ -128,8 +128,8 @@ echo "alias link_port='ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubu
 
 ## Post-installation
 
-If you dont want to leave your passwords in plain text on the node you can remove the passwords file with the below command. 
-Make sure to backup you API and Wallet passwords locally before excuting the step.
+If you dont want to leave your passwords in plain text on the node remove the passwords file with the below command. 
+Make a local backup of your API and Wallet passwords before excuting.
 
 ```
 ssh -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME 'rm -rf /var/chainlink-ropsten/.api /var/chainlink-ropsten/.password'
