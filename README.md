@@ -80,7 +80,7 @@ Get the PublicDNSName
 Use your INSTANCE_ID to retrieve the PUBLIC_DNS_NAME
 
 ```
-aws ec2 describe-instances --instance-id INSTANCE_ID--query "Reservations[0].Instances[0].[PublicDnsName]"
+aws ec2 describe-instances --instance-id INSTANCE_ID --query "Reservations[0].Instances[0].[PublicDnsName]"
 ```
 
 Connect to the node and Monitor the installation.
