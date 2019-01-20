@@ -68,7 +68,7 @@ This command will return the INSTANCE_ID of the created node.
 
 ```
 aws ec2 run-instances \
-    --image-id ami-09f0b8b3e41191524 \
+    --image-id ami-00035f41c82244dab \
     --count 1 --instance-type t3.micro \
     --key-name chainlinknode-key \
     --security-groups chainlink-node \
@@ -96,7 +96,7 @@ Configure port forwarding
 Setup port forwarding from localhost port 6688 to port 6688 of the AWS instance.
 
 ```
-ssh -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME
+ssh -N -L 6688:localhost:6688 -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME
 ```
 You can now login to your (Ropsten) Chainlink node via http://localhost:6688
 
@@ -136,7 +136,7 @@ Variable | Description | Example
 Parameter | Value | Description
 --------- | ----- | ------------
 EC2 Instance Type | t3.micro | 2x vCPUs + 1GB RAM
-EC2 Image Id | ami-09f0b8b3e41191524 | Ubuntu 16.04 LTS Xenial
+EC2 Image Id | ami-00035f41c82244dab| Ubuntu 18.04 LTS
 Image\OS Hardening | None | Ubuntu out of the box
 Chainlink Node Type | Docker | 
 Root Volume | EBS | 8 GB
