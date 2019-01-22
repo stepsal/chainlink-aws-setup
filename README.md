@@ -166,7 +166,7 @@ External Adapters | None |
 
 ## Troubleshooting
 
-To remove your key-pair from AWS. After this, you will need to [create a new key-pair] (#prepare-configuration)
+To remove your key-pair from AWS. After this, you will need to [create a new key-pair](#prepare-configuration)
 ```
 aws ec2 delete-key-pair --key-name chainlinknode-key
 ```
