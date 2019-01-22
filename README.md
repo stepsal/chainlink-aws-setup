@@ -33,7 +33,7 @@ wget https://github.com/stepsal/chainlink-aws-setup/archive/master.zip && unzip 
 
 ### Prepare configuration
 
-Modify the node_setup.bsh script in a text editor.
+Modify the node_setup.sh script in a text editor.
 Replace the placeholders `ETHNODE_ADDRESS`, `WALLET_PASSWORD`, `API_USER` and `API_PASSWORD` with your [desired config](#configuration-variables).
 
 
@@ -96,13 +96,12 @@ aws ec2 describe-instances --instance-id INSTANCE_ID --query "Reservations[0].In
 Connect to the node and Monitor the installation.
 
 Substitute PUBLIC_DNS_NAME with the value returned from the previous step.
-When prompted add the key to the known hosts file.
-Once you see "Chainlink Node Installed Successfully" press ```ctrl+z``` to exit the SSH session.
+You will be prompted that ```The authenticity of PUBLIC_DNS_NAME can't be established``` Type ```yes``` to continue.
 
 ```
 ssh -i ~/chainlinknode-key.pem ubuntu@PUBLIC_DNS_NAME "tail -f /var/log/cloud-init-output.log"
 ```
-
+Once you see "Chainlink Node Successfully Installed" press ```ctrl+z``` to exit the SSH session.
 
 Configure port forwarding.
 
@@ -165,6 +164,17 @@ Web Access | http://localhost:6688 | Web login is configured via port forwarding
 External Adapters | None | 
 
 
+## Troubleshooting
+
+To remove your key-pair from AWS. After this, you will need to [create a new key-pair](#prepare-configuration)
+```
+aws ec2 delete-key-pair --key-name chainlinknode-key
+```
+
+To terminate your instance
+```
+aws ec2 terminate-instances --instance-ids INSTANCE_ID
+```
 
 
 
